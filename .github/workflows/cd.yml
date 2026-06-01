@@ -75,4 +75,4 @@ jobs:
         with:
           environment: ${{ inputs.prod_env }}
           image-tag: ${{ inputs.image-tag }}
-      - run: echo "[INFO] [CD:DEPLOY-PROD] Release completed environment=
+      - run: echo "[INFO] [CD:DEPLOY-PROD] Release completed environment="
