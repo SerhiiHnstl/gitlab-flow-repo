@@ -1,0 +1,20 @@
+name: ENV · 1dev
+
+on:
+  push:
+    branches: ['1dev']
+  pull_request:
+    branches: ['1dev']
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+    with:
+      environment: '1dev'
+
+  deploy:
+    needs: ci
+    if: github.event_name == 'push'   # don't deploy on PRs, only after merge
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: '1dev'

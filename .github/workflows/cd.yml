@@ -1,0 +1,63 @@
+name: Reusable CD
+
+on:
+  workflow_call:
+    inputs:
+      stage_env:
+        description: 'Stage environment (e.g. 1preprod)'
+        required: true
+        type: string
+      prod_env:
+        description: 'Prod environment (e.g. 1prod)'
+        required: true
+        type: string
+
+jobs:
+  deploy-stage:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.stage_env }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/deploy
+        with:
+          environment: ${{ inputs.stage_env }}
+
+  smoke-test:
+    needs: deploy-stage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/smoke-test
+
+  e2e-test:
+    needs: smoke-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/e2e-test
+
+  performance-test:
+    needs: e2e-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/performance-test
+
+  manual-approval:
+    needs: performance-test
+    runs-on: ubuntu-latest
+    environment:
+      name: production-approval   # 👈 requires reviewers (DevOps)
+    steps:
+      - run: echo "🖐️ [APPROVAL] Production deploy approved by reviewer."
+
+  deploy-prod:
+    needs: manual-approval
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.prod_env }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/deploy
+        with:
+          environment: ${{ inputs.prod_env }}
+      - run: echo "✅ [CD] Release to PROD '${{ inputs.prod_env }}' completed!"

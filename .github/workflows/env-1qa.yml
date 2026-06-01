@@ -1,0 +1,20 @@
+name: ENV · 1qa
+
+on:
+  push:
+    branches: ['1qa']
+  pull_request:
+    branches: ['1qa']
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+    with:
+      environment: '1qa'
+
+  deploy:
+    needs: ci
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: '1qa'

@@ -1,0 +1,7 @@
+name: 'Performance Test'
+description: 'Composite action for performance tests (echo only)'
+runs:
+  using: 'composite'
+  steps:
+    - shell: bash
+      run: echo "⚡ [PERF] Load testing (RPS / latency)... PASSED"

@@ -1,0 +1,11 @@
+name: 'Deploy'
+description: 'Composite action for deployment (echo only)'
+inputs:
+  environment:
+    description: 'Target environment'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - shell: bash
+      run: echo "🚀 [DEPLOY] Deploying app to '${{ inputs.environment }}'... DEPLOYED"

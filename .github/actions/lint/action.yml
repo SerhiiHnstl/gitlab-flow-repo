@@ -1,0 +1,7 @@
+name: 'Lint'
+description: 'Composite action for linting (echo only)'
+runs:
+  using: 'composite'
+  steps:
+    - shell: bash
+      run: echo "🔍 [LINT] Checking code style... OK"

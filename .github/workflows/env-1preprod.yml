@@ -1,0 +1,22 @@
+name: ENV · 1preprod
+
+on:
+  push:
+    branches: ['1preprod']
+  pull_request:
+    branches: ['1preprod']
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+    with:
+      environment: '1preprod'
+
+  # Full CD: deploy-stage → smoke → e2e → perf → approval → deploy-prod
+  cd:
+    needs: ci
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/cd.yml
+    with:
+      stage_env: '1preprod'
+      prod_env: '1prod'

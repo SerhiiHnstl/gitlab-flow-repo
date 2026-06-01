@@ -1,0 +1,7 @@
+name: 'Test'
+description: 'Composite action for unit tests (echo only)'
+runs:
+  using: 'composite'
+  steps:
+    - shell: bash
+      run: echo "🧪 [TEST] Running unit tests... PASSED"
