@@ -12,7 +12,6 @@ jobs:
     with:
       environment: '1preprod'
 
-  # Full CD: deploy-stage → smoke → e2e → perf → approval → deploy-prod
   cd:
     needs: ci
     if: github.event_name == 'push'

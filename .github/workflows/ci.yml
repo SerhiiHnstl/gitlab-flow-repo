@@ -66,21 +66,18 @@ jobs:
           path: dist/
           retention-days: 1
 
-  # ---------- DOCKER: reuses artifact + same docker-layer cache ----------
   docker:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      # 📥 Download build output from the build job
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           name: build-artifact-${{ inputs.environment }}
           path: dist/
 
-      # 🐳 Restore SAME docker-layer cache the build job created
       - name: Restore docker layer cache
         uses: actions/cache@v4
         with:
