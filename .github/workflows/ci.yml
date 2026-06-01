@@ -28,7 +28,6 @@ jobs:
           cache-key-prefix: ${{ inputs.environment }}
       - uses: ./.github/actions/test
 
-  # ---------- BUILD: produces artifact + warms docker-layer cache ----------
   build:
     needs: test
     runs-on: ubuntu-latest
@@ -39,7 +38,6 @@ jobs:
         with:
           cache-key-prefix: ${{ inputs.environment }}
 
-      # 🐳 Docker-layer cache shared with the docker job (same key)
       - name: Restore docker layer cache
         uses: actions/cache@v4
         with:
@@ -58,7 +56,6 @@ jobs:
           echo "layer-deps"   > /tmp/.docker-cache/layer2
           echo "🐳 [CACHE] Docker layers prepared in build job."
 
-      # 📤 Pass build output (dist/) to the docker job
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
