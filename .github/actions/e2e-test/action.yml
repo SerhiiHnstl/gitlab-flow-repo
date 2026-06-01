@@ -1,7 +1,0 @@
-name: 'E2E Test'
-description: 'Composite action for end-to-end tests (echo only)'
-runs:
-  using: 'composite'
-  steps:
-    - shell: bash
-      run: echo "🔗 [E2E] End-to-end user scenarios... PASSED"

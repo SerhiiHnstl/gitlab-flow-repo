@@ -1,0 +1,15 @@
+name: 'Setup Cache'
+description: 'Restores build cache '
+inputs:
+  cache-key-prefix:
+    description: 'Cache key prefix (should NOT include environment — code is identical across envs)'
+    required: false
+    default: 'gradle'
+runs:
+  using: 'composite'
+  steps:
+    - shell: bash
+      run: |
+        set -euo pipefail
+        echo "[INFO] [CACHE] Restoring build cache prefix=${{ inputs.cache-key-prefix }}"
+        echo "[INFO] [CACHE] Cache restored successfully"

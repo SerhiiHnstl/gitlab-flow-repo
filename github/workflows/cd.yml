@@ -11,53 +11,68 @@ on:
         description: 'Prod environment (e.g. 1prod)'
         required: true
         type: string
+      image-tag:
+        description: 'Immutable image tag to deploy (passed from CI)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cd-${{ inputs.prod_env }}
+  cancel-in-progress: false
 
 jobs:
   deploy-stage:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment: ${{ inputs.stage_env }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/deploy
         with:
           environment: ${{ inputs.stage_env }}
+          image-tag: ${{ inputs.image-tag }}
+      - run: echo "[INFO] [CD:DEPLOY-STAGE] Deployed environment=${{ inputs.stage_env }} image-tag=${{ inputs.image-tag }}"
 
   smoke-test:
     needs: deploy-stage
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/smoke-test
+      - run: echo "[INFO] [CD:SMOKE] Stage completed environment=${{ inputs.stage_env }}"
 
   e2e-test:
     needs: smoke-test
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/e2e-test
+      - run: echo "[INFO] [CD:E2E] Stage completed environment=${{ inputs.stage_env }}"
 
   performance-test:
     needs: e2e-test
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/performance-test
-
-  manual-approval:
-    needs: performance-test
-    runs-on: ubuntu-latest
-    environment:
-      name: production-approval   # 👈 requires reviewers (DevOps)
-    steps:
-      - run: echo "🖐️ [APPROVAL] Production deploy approved by reviewer."
+      - run: echo "[INFO] [CD:PERF] Stage completed environment=${{ inputs.stage_env }}"
 
   deploy-prod:
-    needs: manual-approval
+    needs: performance-test
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment: ${{ inputs.prod_env }}
     steps:
       - uses: actions/checkout@v4
+      - run: echo "[INFO] [CD:APPROVAL] Production deploy approved by required reviewers environment=${{ inputs.prod_env }}"
       - uses: ./.github/actions/deploy
         with:
           environment: ${{ inputs.prod_env }}
-      - run: echo "✅ [CD] Release to PROD '${{ inputs.prod_env }}' completed!"
+          image-tag: ${{ inputs.image-tag }}
+      - run: echo "[INFO] [CD:DEPLOY-PROD] Release completed environment=

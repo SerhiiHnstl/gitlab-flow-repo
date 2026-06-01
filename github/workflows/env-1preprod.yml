@@ -6,13 +6,15 @@ on:
   pull_request:
     branches: ['1preprod']
 
+permissions:
+  contents: read
+
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml
     with:
       environment: '1preprod'
 
-  # Full CD: deploy-stage → smoke → e2e → perf → approval → deploy-prod
   cd:
     needs: ci
     if: github.event_name == 'push'
@@ -20,3 +22,4 @@ jobs:
     with:
       stage_env: '1preprod'
       prod_env: '1prod'
+      image-tag: ${{ needs.ci.outputs.image-tag }}

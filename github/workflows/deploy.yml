@@ -1,0 +1,44 @@
+name: Reusable Deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Target environment to deploy (e.g. 1dev, 2qa)'
+        required: true
+        type: string
+      image-tag:
+        description: 'Immutable image tag to deploy (passed from CI)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore cache
+        uses: ./.github/actions/setup-cache
+        with:
+          cache-key-prefix: gradle
+
+      - name: Deploy application
+        uses: ./.github/actions/deploy
+        with:
+          environment: ${{ inputs.environment }}
+          image-tag: ${{ inputs.image-tag }}
+
+      - name: Post-deploy smoke test
+        uses: ./.github/actions/smoke-test
+
+      - run: echo "[INFO] [DEPLOY] Environment is live environment=${{ inputs.environment }} image-tag=${{ inputs.image-tag }} status=healthy"

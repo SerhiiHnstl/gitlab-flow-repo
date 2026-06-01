@@ -1,0 +1,19 @@
+name: 'Deploy'
+description: 'Deploys application to target environment'
+inputs:
+  environment:
+    description: 'Target environment (e.g. 1dev, 2preprod)'
+    required: true
+  image-tag:
+    description: 'Immutable image tag to deploy'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - shell: bash
+      run: |
+        set -euo pipefail
+        echo "[INFO] [DEPLOY] Starting deployment environment=${{ inputs.environment }} image-tag=${{ inputs.image-tag }}"
+        echo "[INFO] [DEPLOY] Applying deployment manifests"
+        echo "[INFO] [DEPLOY] Waiting for rollout to complete"
+        echo "[INFO] [DEPLOY] Deployment completed environment=${{ inputs.environment }} image-tag=${{ inputs.image-tag }} status=SUCCESS"
