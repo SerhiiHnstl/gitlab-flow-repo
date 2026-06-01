@@ -1,7 +1,0 @@
-name: 'Smoke Test'
-description: 'Composite action for smoke tests (echo only)'
-runs:
-  using: 'composite'
-  steps:
-    - shell: bash
-      run: echo "💨 [SMOKE] Basic health checks... PASSED"

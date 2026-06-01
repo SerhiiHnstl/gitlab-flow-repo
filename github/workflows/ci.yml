@@ -1,0 +1,92 @@
+name: Reusable CI
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Target environment label (used for traceability only)'
+        required: true
+        type: string
+    outputs:
+      image-tag:
+        description: 'Immutable image tag produced by this CI run (git SHA)'
+        value: ${{ jobs.build.outputs.image-tag }}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-cache
+        with:
+          cache-key-prefix: gradle
+      - uses: ./.github/actions/lint
+      - run: echo "[INFO] [CI:LINT] Stage completed environment=${{ inputs.environment }}"
+
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-cache
+        with:
+          cache-key-prefix: gradle
+      - uses: ./.github/actions/test
+      - run: echo "[INFO] [CI:TEST] Stage completed environment=${{ inputs.environment }}"
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      image-tag: ${{ steps.build.outputs.image-tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-cache
+        with:
+          cache-key-prefix: gradle
+
+      - id: build
+        uses: ./.github/actions/build
+        with:
+          image-tag: ${{ github.sha }}
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact-${{ github.sha }}
+          path: dist/
+          retention-days: 1
+          if-no-files-found: error
+
+      - run: echo "[INFO] [CI:BUILD] Stage completed environment=${{ inputs.environment }} image-tag=${{ github.sha }}"
+
+  docker:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact-${{ github.sha }}
+          path: dist/
+
+      - uses: ./.github/actions/docker
+        with:
+          image-tag: ${{ needs.build.outputs.image-tag }}
+
+      - run: echo "[INFO] [CI:DOCKER] Stage completed environment=${{ inputs.environment }} image-tag=${{ needs.build.outputs.image-tag }}"
+
+      - run: echo "[INFO] [CI] Pipeline finished environment=${{ inputs.environment }} image-tag=${{ needs.build.outputs.image-tag }}"

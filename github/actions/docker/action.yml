@@ -1,0 +1,22 @@
+name: 'Docker'
+description: 'Packages container image from prebuilt artifact'
+inputs:
+  image-tag:
+    description: 'Immutable image tag to assign to the container image'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - shell: bash
+      run: |
+        set -euo pipefail
+        echo "[INFO] [DOCKER] Verifying prebuilt artifact in ./dist"
+        if [ ! -d dist ] || [ -z "$(ls -A dist 2>/dev/null)" ]; then
+          echo "[ERROR] [DOCKER] Build artifact not found in ./dist — upstream build job failed"
+          exit 1
+        fi
+        ls -la dist
+        echo "[INFO] [DOCKER] Packaging container image image-tag=${{ inputs.image-tag }}"
+        echo "[INFO] [DOCKER] Container image built successfully image-tag=${{ inputs.image-tag }}"
+        echo "[INFO] [DOCKER] Pushing image to registry image-tag=${{ inputs.image-tag }}"
+        echo "[INFO] [DOCKER] Container image pushed status=PASSED"

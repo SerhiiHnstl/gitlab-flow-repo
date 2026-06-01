@@ -1,0 +1,31 @@
+name: 'Build'
+description: 'Builds application artifact'
+inputs:
+  image-tag:
+    description: 'Immutable image tag (e.g. git SHA) for traceability'
+    required: false
+    default: ${{ github.sha }}
+outputs:
+  artifact-path:
+    description: 'Path to build output directory'
+    value: ${{ steps.build.outputs.artifact-path }}
+  image-tag:
+    description: 'Immutable image tag of the produced artifact'
+    value: ${{ steps.build.outputs.image-tag }}
+runs:
+  using: 'composite'
+  steps:
+    - id: build
+      shell: bash
+      run: |
+        set -euo pipefail
+        echo "[INFO] [BUILD] Starting application build image-tag=${{ inputs.image-tag }}"
+
+        mkdir -p dist
+        echo "demo-app-binary" > dist/app.bundle
+
+        echo "artifact-path=dist" >> "$GITHUB_OUTPUT"
+        echo "image-tag=${{ inputs.image-tag }}" >> "$GITHUB_OUTPUT"
+
+        echo "[INFO] [BUILD] Artifact created path=./dist/app.bundle"
+        echo "[INFO] [BUILD] Application build completed image-tag=${{ inputs.image-tag }} status=PASSED"
