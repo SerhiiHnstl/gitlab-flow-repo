@@ -35,19 +35,6 @@ Stream 2:  2dev ──► 2qa ──► 2preprod ──► 2prod
 
 ---
 
-## Reusable Workflows vs Composite Actions
-
-|  | Reusable Workflow | Composite Action |
-|---|---|---|
-| Location | `.github/workflows/*.yml` | `.github/actions/<name>/action.yml` |
-| Invocation | `uses: ./.github/workflows/x.yml` at `jobs:` | `uses: ./.github/actions/x` at `steps:` |
-| Owns jobs | yes | no |
-| Supports `matrix` | yes | no (caller side only) |
-| Own `secrets:` block | yes | no (via inputs) |
-| Best for | full stage (CI, CD, deploy) | atomic step (lint, build, deploy step) |
-
----
-
 ## Repository Layout
 
 ```
