@@ -42,3 +42,4 @@ dev       qa        preprod      prod
 ## GitHub Environments
 
 Create `dev`, `qa`, `preprod`, `prod`, `perf` in repo settings. Add **required reviewers** on `prod`.
+test
