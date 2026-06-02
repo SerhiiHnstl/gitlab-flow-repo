@@ -1,0 +1,28 @@
+name: perf
+
+on:
+  workflow_dispatch:
+    inputs:
+      image-tag:
+        description: 'Version to test (default: current commit SHA)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: perf
+      image-tag: ${{ inputs.image-tag || github.sha }}
+
+  perf:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/performance-test
+        with:
+          base-url: ${{ needs.deploy.outputs.app_url }}

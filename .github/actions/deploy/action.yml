@@ -2,7 +2,7 @@ name: 'Deploy'
 description: 'Deploys application to target environment'
 inputs:
   environment:
-    description: 'Target environment (e.g. 1dev, 2preprod)'
+    description: 'Target environment (dev|qa|preprod|prod|perf)'
     required: true
   image-tag:
     description: 'Immutable image tag to deploy'

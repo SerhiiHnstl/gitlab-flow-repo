@@ -1,19 +1,24 @@
-name: Reusable Deploy
+name: Deploy
 
 on:
   workflow_call:
     inputs:
       environment:
-        description: 'Target environment to deploy (e.g. 1dev, 2qa)'
+        description: 'Target environment to deploy (dev|qa|preprod|prod|perf)'
         required: true
         type: string
       image-tag:
-        description: 'Immutable image tag to deploy (passed from CI)'
+        description: 'Immutable version (image tag) to deploy'
         required: true
         type: string
+    outputs:
+      app_url:
+        description: 'Public URL of the deployed environment (consumed by smoke/e2e)'
+        value: ${{ jobs.deploy.outputs.app_url }}
 
 permissions:
   contents: read
+  id-token: write
 
 concurrency:
   group: deploy-${{ inputs.environment }}
@@ -23,22 +28,22 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment: ${{ inputs.environment }}
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ steps.app_url.outputs.app_url }}
+    outputs:
+      app_url: ${{ steps.app_url.outputs.app_url }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore cache
-        uses: ./.github/actions/setup-cache
-        with:
-          cache-key-prefix: gradle
-
-      - name: Deploy application
-        uses: ./.github/actions/deploy
+      - uses: ./.github/actions/deploy
         with:
           environment: ${{ inputs.environment }}
           image-tag: ${{ inputs.image-tag }}
 
-      - name: Post-deploy smoke test
-        uses: ./.github/actions/smoke-test
-
-      - run: echo "[INFO] [DEPLOY] Environment is live environment=${{ inputs.environment }} image-tag=${{ inputs.image-tag }} status=healthy"
+      - name: Resolve app URL
+        id: app_url
+        run: |
+          APP_URL="https://${{ inputs.environment }}.example.com"
+          echo "app_url=${APP_URL}" >> "$GITHUB_OUTPUT"
+          echo "[INFO] [DEPLOY] env=${{ inputs.environment }} version=${{ inputs.image-tag }} url=${APP_URL}"
