@@ -11,6 +11,7 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/e2e-test
         with:
           base-url: ${{ inputs.base_url }}

@@ -26,6 +26,7 @@ jobs:
     needs: deploy
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/performance-test
         with:
           base-url: ${{ needs.deploy.outputs.app_url }}
