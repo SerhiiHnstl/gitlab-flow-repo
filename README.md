@@ -2,8 +2,6 @@
 
 Promotion flow `dev → qa → preprod → prod` on GitHub Actions.
 
-> Echo-only demo — shows structure, not real infra.
-
 ## Idea
 
 **Build once on `dev`. Promote the same version everywhere else.**
@@ -42,3 +40,4 @@ dev       qa        preprod      prod
 ## GitHub Environments
 
 Create `dev`, `qa`, `preprod`, `prod`, `perf` in repo settings. Add **required reviewers** on `prod`.
+test
