@@ -4,9 +4,16 @@ on:
   push:
     branches: [qa]
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   deploy:
     uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: read
+      id-token: write
     with:
       environment: qa
       image-tag: ${{ github.sha }}

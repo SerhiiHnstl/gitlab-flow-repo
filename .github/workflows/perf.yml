@@ -15,6 +15,9 @@ permissions:
 jobs:
   deploy:
     uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: read
+      id-token: write
     with:
       environment: perf
       image-tag: ${{ inputs.image-tag || github.sha }}
@@ -23,6 +26,7 @@ jobs:
     needs: deploy
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/performance-test
         with:
           base-url: ${{ needs.deploy.outputs.app_url }}

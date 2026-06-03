@@ -4,9 +4,16 @@ on:
   push:
     branches: [preprod]
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   deploy:
     uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: read
+      id-token: write
     with:
       environment: preprod
       image-tag: ${{ github.sha }}

@@ -4,21 +4,29 @@ on:
   push:
     branches: [dev]
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   build:
     uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+      id-token: write
 
   deploy:
     needs: build
-    if: github.event_name == 'push'
     uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: read
+      id-token: write
     with:
       environment: dev
       image-tag: ${{ needs.build.outputs.image-tag }}
 
   smoke:
     needs: deploy
-    if: github.event_name == 'push'
     uses: ./.github/workflows/smoke.yml
     with:
       base_url: ${{ needs.deploy.outputs.app_url }}
