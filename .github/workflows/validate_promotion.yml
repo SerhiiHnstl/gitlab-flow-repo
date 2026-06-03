@@ -1,0 +1,34 @@
+name: Validate promotion
+
+on:
+  pull_request:
+    branches: [prod, preprod, qa]
+
+jobs:
+  check-source-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce promotion chain
+        run: |
+          target="${{ github.base_ref }}"
+          source="${{ github.head_ref }}"
+          echo "PR: ${source} → ${target}"
+
+          case "${target}" in
+            qa)
+              allowed="dev"
+              ;;
+            preprod)
+              allowed="qa"
+              ;;
+            prod)
+              allowed="preprod"
+              ;;
+          esac
+
+          if [ "${source}" != "${allowed}" ]; then
+            echo "::error::Forbidden: only '${allowed}' can merge into '${target}', got '${source}'"
+            exit 1
+          fi
+
+          echo "OK: valid promotion ${source} → ${target}"

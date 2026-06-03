@@ -2,8 +2,6 @@
 
 Promotion flow `dev → qa → preprod → prod` on GitHub Actions.
 
-> Echo-only demo — shows structure, not real infra.
-
 ## Idea
 
 **Build once on `dev`. Promote the same version everywhere else.**
